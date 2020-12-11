@@ -2,18 +2,12 @@
 [Module] In maze package
 """
 import random
-import turtle 
 from turtle import Turtle, Screen
 
 
-
-window = turtle.Screen()
-pointer = turtle.Turtle()
-
 obstacles_list = []
-row_list = []
-col_list = []
-grid  = []
+pointer = Turtle()
+
 
 # area limit vars
 min_y, max_y = -200, 200
@@ -24,60 +18,60 @@ def create_obstacles():
     """
     creates the obstacles
     """
-    
     global obstacles_list,grid
     
     for x in range(-200,200,20):
         count = 0
         for i in range(20):
-            row_list.append((-100+count,x))
+            obstacles_list.append((-90+count,x))
             count += 10
     
     for x in range(-100,100,40):
         count = 0
         for i in range(40):
-            col_list.append((x,-200+count))
+            obstacles_list.append((x,-200+count))
             count += 10
-    
-    obstacles_list=[(x,y) for (x,y) in col_list
-                    if (x,y) not in obstacles_list]
-    for x,y in row_list:
-        obstacles_list.append((x,y))
-
-    
-    for i in range(random.randrange(200,250)):
+   
+    for i in range(random.randrange(180,230)):
         random.choices(obstacles_list.pop(random.randrange(
             len(obstacles_list)-1)))   
 
     for i in obstacles_list:
-        if i == (-10,0) or i == (-10,10) or i == (10,10) or i == (0,0):
+        if i == (-10,0) or i == (-10,10) or i == (10,10) or i == (0,0) or i == (-10,-20) or i == (10,20) or i[0] >= 100:   
             obstacles_list.remove(i)
-        else:
-            grid.append(i)
+        elif i[0] in range (-30, 31) and i[1] in range (-30, 31):
+            obstacles_list.pop(obstacles_list.index(i))
+        elif i[0] in range(-11,11) and i[1] in range(-11,11):
+            obstacles_list.remove(i)
+       
+    return obstacles_list
             
             
 def draw_obstacles():
     """
     draws the obstacles on to the window
     """
-    
+    window,turtle = main()
     pointer.penup()
-    pointer.goto(-100,-200)
-    pointer.pen(pencolor='black')  
-    turtle.tracer(False)
+    pointer.goto(obstacles_list[0])
+    pointer.pen(pencolor= 'blue')  
+    pointer.speed(0)
+    window.tracer(False)
     for i in obstacles_list:
         pointer.goto(i)
         pointer.pendown()
-        pointer.fillcolor('light blue')
+        pointer.fillcolor('teal')
         pointer.begin_fill()
         for i in range(4):
             pointer.fd(10)
             pointer.lt(90)
         pointer.end_fill()
         pointer.penup()
-    turtle.tracer(True)
+    window.tracer(True)
+
     pointer.color('red','red')
-    
+    pointer.pendown()
+  
      
 def draw_world():
     """
@@ -99,16 +93,59 @@ def draw_world():
     pointer.penup()
     pointer.home()
     pointer.left(90)
-    pointer.hideturtle()   
+    pointer.pendown()
+    # pointer.hideturtle()
 
 
-create_obstacles()
-draw_obstacles()
-draw_world()
-pointer.home()
-pointer.lt(90)
-pointer.showturtle()
+def is_position_blocked(x, y):
+    """
+    is position blocked
+        checkes if the co-ordinates have an obstacle
+        return a bool
+    """
+    global obstacles_list
+
+
+    for x1,y1 in obstacles_list:
+        if (x in range(x1,x1+10)) and (y in range(y1,y1+10)):
+            return True
+    return False
+  
+
+def is_path_blocked(x1, y1, x2, y2):
+    """
+    is path blocked
+        checks if the position it has to move to is blocked
+        returns a bool 
+    """
+    global obstacles_list
+
+    if x1 == x2:       
+        for x,y in obstacles_list:
+            for a in range(y1,y2):
+                if x1 in range(x,x+10) and a in range(y,y+10):
+                    return True
+    elif y1 == y2: 
+        for x,y in obstacles_list:
+            for a in range(x1,x2):
+                if a in range(x,x+10) and y1 in range(y,y+10):
+                    return True
+
+
+
+    return False
+
+
+def get_obstacles():
     
-turtle.mainloop()
+    return obstacles_list
 
 
+def main():
+    window = Screen()
+    window_turtles = window.turtles()
+    [window_turtles.remove(i) for i in window_turtles]
+    pointer.hideturtle()
+    return window,pointer
+    
+    
